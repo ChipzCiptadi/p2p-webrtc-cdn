@@ -3,15 +3,21 @@ import "./App.css";
 import Player from "./components/Player";
 import type { DownloadStats } from "./components/types";
 import Chart from "./components/Chart";
+import { byteToMiB } from "./utils";
 
 function App() {
   const trackers = [
-    // "wss://tracker.novage.com.ua",
-    // "wss://tracker.webtorrent.dev",
-    // "wss://tracker.openwebtorrent.com",
-    "ws://192.168.0.180:8000",
+    "wss://tracker.novage.com.ua",
+    "wss://tracker.webtorrent.dev",
+    "wss://tracker.openwebtorrent.com",
   ];
   const downloadStats = useRef<DownloadStats>({
+    httpDownloaded: 0,
+    p2pDownloaded: 0,
+    p2pUploaded: 0,
+  });
+
+  const [totalDownloadStats, setTotalDownloadStats] = useState<DownloadStats>({
     httpDownloaded: 0,
     p2pDownloaded: 0,
     p2pUploaded: 0,
@@ -23,16 +29,51 @@ function App() {
     <>
       <Player
         downloadStatsRef={downloadStats}
+        setTotalDownloadStats={setTotalDownloadStats}
         setPeers={setPeers}
         trackers={trackers}
       />
       <Chart downloadStatsRef={downloadStats} />
-      <div className="peers">
-        <h2>Peers ({peers.length})</h2>
+
+      <div className="peers">Total peers connected: {peers.length}</div>
+
+      <div className="totalStats">
+        <h2>Total Download Stats</h2>
         <ul>
-          {peers.map((peerId) => (
-            <li key={peerId}>{peerId}</li>
-          ))}
+          <li>
+            Total Downloaded: {}
+            {byteToMiB(
+              totalDownloadStats.httpDownloaded +
+                totalDownloadStats.p2pDownloaded
+            ).toFixed(2)}{" "}
+            MiB
+          </li>
+          <li>
+            HTTP Downloaded:{" "}
+            {byteToMiB(totalDownloadStats.httpDownloaded).toFixed(2)} MiB (
+            {(
+              (totalDownloadStats.httpDownloaded /
+                (totalDownloadStats.httpDownloaded +
+                  totalDownloadStats.p2pDownloaded)) *
+              100
+            ).toFixed(2)}
+            %)
+          </li>
+          <li>
+            P2P Downloaded:{" "}
+            {byteToMiB(totalDownloadStats.p2pDownloaded).toFixed(2)} MiB (
+            {(
+              (totalDownloadStats.p2pDownloaded /
+                (totalDownloadStats.httpDownloaded +
+                  totalDownloadStats.p2pDownloaded)) *
+              100
+            ).toFixed(2)}
+            %)
+          </li>
+          <li>
+            P2P Uploaded: {byteToMiB(totalDownloadStats.p2pUploaded).toFixed(2)}{" "}
+            MiB
+          </li>
         </ul>
       </div>
     </>

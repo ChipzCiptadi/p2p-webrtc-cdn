@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { DownloadStats, TimedDownloadStats } from "./types";
 import { LineChart } from "@mui/x-charts";
+import { byteToKiB } from "../utils";
 
 const ARRAY_SIZE = 60;
 
@@ -12,10 +13,6 @@ function initTimedDownloadStats(): TimedDownloadStats[] {
     p2pDownloaded: 0,
     p2pUploaded: 0,
   }));
-}
-
-function byteToMiB(bytes: number): number {
-  return bytes / (1024 * 1024);
 }
 
 export default function Chart({
@@ -35,9 +32,9 @@ export default function Chart({
 
         const newTimedDownloadStats: TimedDownloadStats = {
           seconds: Math.floor(performance.now() / 1000),
-          httpDownloaded: byteToMiB(httpDownloaded),
-          p2pDownloaded: byteToMiB(p2pDownloaded),
-          p2pUploaded: -byteToMiB(p2pUploaded),
+          httpDownloaded: byteToKiB(httpDownloaded),
+          p2pDownloaded: byteToKiB(p2pDownloaded),
+          p2pUploaded: -byteToKiB(p2pUploaded),
         };
 
         return [...prevStats.slice(1), newTimedDownloadStats];
@@ -58,19 +55,19 @@ export default function Chart({
         xAxis={[{ data: timedDownloadStats.map((stat) => stat.seconds) }]}
         series={[
           {
-            label: "HTTP downloaded",
+            label: "HTTP download (KiB/s)",
             data: timedDownloadStats.map((stat) => stat.httpDownloaded),
             showMark: false,
             area: true,
           },
           {
-            label: "P2P downloaded",
+            label: "P2P download (KiB/s)",
             data: timedDownloadStats.map((stat) => stat.p2pDownloaded),
             showMark: false,
             area: true,
           },
           {
-            label: "P2P uploaded",
+            label: "P2P upload (KiB/s)",
             data: timedDownloadStats.map((stat) => stat.p2pUploaded),
             showMark: false,
             area: true,

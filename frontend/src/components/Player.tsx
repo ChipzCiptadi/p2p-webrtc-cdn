@@ -21,10 +21,12 @@ import type { DownloadStats } from "./types";
 
 function Player({
   downloadStatsRef,
+  setTotalDownloadStats,
   setPeers,
   trackers,
 }: {
   downloadStatsRef: React.RefObject<DownloadStats>;
+  setTotalDownloadStats: React.Dispatch<React.SetStateAction<DownloadStats>>;
   setPeers: React.Dispatch<React.SetStateAction<string[]>>;
   trackers: string[];
 }) {
@@ -50,7 +52,6 @@ function Player({
             engine.addEventListener("onPeerConnect", (peer) => {
               if (peer.streamType !== "main") return;
 
-              console.log("Peer connected:", peer);
               setPeers((prevPeers) => {
                 return [...prevPeers, peer.peerId];
               });
@@ -59,7 +60,6 @@ function Player({
             engine.addEventListener("onPeerClose", (peer) => {
               if (peer.streamType !== "main") return;
 
-              console.log("Peer disconnected:", peer);
               setPeers((prevPeers) => {
                 return prevPeers.filter((peerId) => peerId !== peer.peerId);
               });
@@ -75,9 +75,17 @@ function Player({
                 switch (downloadSource) {
                   case "http":
                     downloadStatsRef.current.httpDownloaded += bytesLength;
+                    setTotalDownloadStats((prevStats) => ({
+                      ...prevStats,
+                      httpDownloaded: prevStats.httpDownloaded + bytesLength,
+                    }));
                     break;
                   case "p2p":
                     downloadStatsRef.current.p2pDownloaded += bytesLength;
+                    setTotalDownloadStats((prevStats) => ({
+                      ...prevStats,
+                      p2pDownloaded: prevStats.p2pDownloaded + bytesLength,
+                    }));
                     break;
                 }
               }
@@ -87,6 +95,10 @@ function Player({
               "onChunkUploaded",
               (bytesLength: number, _: string) => {
                 downloadStatsRef.current.p2pUploaded += bytesLength;
+                setTotalDownloadStats((prevStats) => ({
+                  ...prevStats,
+                  p2pUploaded: prevStats.p2pUploaded + bytesLength,
+                }));
               }
             );
 
