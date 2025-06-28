@@ -4,13 +4,9 @@ import Player from "./components/Player";
 import type { DownloadStats } from "./components/types";
 import Chart from "./components/Chart";
 import { byteToMiB } from "./utils";
+import { config } from "./config";
 
 function App() {
-  const trackers = [
-    "wss://tracker.novage.com.ua",
-    "wss://tracker.webtorrent.dev",
-    "wss://tracker.openwebtorrent.com",
-  ];
   const downloadStats = useRef<DownloadStats>({
     httpDownloaded: 0,
     p2pDownloaded: 0,
@@ -31,7 +27,7 @@ function App() {
         downloadStatsRef={downloadStats}
         setTotalDownloadStats={setTotalDownloadStats}
         setPeers={setPeers}
-        trackers={trackers}
+        config={config}
       />
       <Chart downloadStatsRef={downloadStats} />
 

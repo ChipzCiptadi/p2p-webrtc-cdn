@@ -7,7 +7,7 @@
     "dev": "vite --host",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -16,7 +16,7 @@
     "@mui/x-charts": "^8.5.3",
     "@vidstack/react": "^1.12.13",
     "hls.js": "^1.6.5",
-    "p2p-media-loader-demo": "^2.2.1",
+    "p2p-media-loader-core": "^2.2.1",
     "p2p-media-loader-hlsjs": "^2.2.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

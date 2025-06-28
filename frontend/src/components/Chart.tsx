@@ -59,12 +59,14 @@ export default function Chart({
             data: timedDownloadStats.map((stat) => stat.httpDownloaded),
             showMark: false,
             area: true,
+            stack: "total",
           },
           {
             label: "P2P download (KiB/s)",
             data: timedDownloadStats.map((stat) => stat.p2pDownloaded),
             showMark: false,
             area: true,
+            stack: "total",
           },
           {
             label: "P2P upload (KiB/s)",

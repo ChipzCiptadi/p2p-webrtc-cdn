@@ -15,20 +15,22 @@ import {
 } from "@vidstack/react/player/layouts/default";
 import { useCallback } from "react";
 import { HlsJsP2PEngine, type HlsWithP2PConfig } from "p2p-media-loader-hlsjs";
+import type { CoreConfig } from "p2p-media-loader-core";
 import Hls from "hls.js";
 
 import type { DownloadStats } from "./types";
+import { logger } from "../utils";
 
 function Player({
   downloadStatsRef,
   setTotalDownloadStats,
   setPeers,
-  trackers,
+  config,
 }: {
   downloadStatsRef: React.RefObject<DownloadStats>;
   setTotalDownloadStats: React.Dispatch<React.SetStateAction<DownloadStats>>;
   setPeers: React.Dispatch<React.SetStateAction<string[]>>;
-  trackers: string[];
+  config: CoreConfig;
 }) {
   const url =
     "https://fcc3ddae59ed.us-west-2.playback.live-video.net/api/video/v1/us-west-2.893648527354.channel.DmumNckWFTqz.m3u8";
@@ -40,17 +42,16 @@ function Player({
       const HlsWithP2P = HlsJsP2PEngine.injectMixin(Hls);
 
       provider.library = HlsWithP2P as unknown as typeof Hls;
-      const config: HlsWithP2PConfig<typeof Hls> = {
+      const hlsConfig: HlsWithP2PConfig<typeof Hls> = {
         p2p: {
-          core: {
-            swarmId: "sprite-fright",
-            announceTrackers: trackers,
-          },
+          core: config,
           onHlsJsCreated: (hls) => {
             const engine = hls.p2pEngine;
 
             engine.addEventListener("onPeerConnect", (peer) => {
               if (peer.streamType !== "main") return;
+
+              logger("onPeerConnect", peer);
 
               setPeers((prevPeers) => {
                 return [...prevPeers, peer.peerId];
@@ -60,13 +61,15 @@ function Player({
             engine.addEventListener("onPeerClose", (peer) => {
               if (peer.streamType !== "main") return;
 
+              logger("onPeerClose", peer);
+
               setPeers((prevPeers) => {
                 return prevPeers.filter((peerId) => peerId !== peer.peerId);
               });
             });
 
             engine.addEventListener("onPeerError", (params) => {
-              console.error("Peer error:", params);
+              logger("onPeerError", params);
             });
 
             engine.addEventListener(
@@ -113,7 +116,7 @@ function Player({
         },
       };
 
-      provider.config = config;
+      provider.config = hlsConfig;
     },
     []
   );
